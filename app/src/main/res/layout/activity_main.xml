@@ -102,6 +102,7 @@
                 <TextView
                         android:text="Debug Text"
                         android:layout_width="match_parent"
+                        android:scrollbars = "vertical"
                         android:layout_height="wrap_content"
                         android:textAlignment="center"
                         android:fontFamily="monospace"
@@ -114,7 +115,53 @@
                         android:layout_width="match_parent"
                         android:layout_height="113dp"
                         android:id="@+id/debugTextView"
+                        android:fontFamily="@font/convergence"
+                        android:scrollbars="horizontal|vertical"/>
+
+                <TextView
+                        android:text="Latency"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        tools:layout_editor_absoluteY="472dp"
+                        tools:layout_editor_absoluteX="38dp"
+                        android:id="@+id/textView3"
+                        android:textSize="18sp"
                         android:fontFamily="@font/convergence"/>
+
+                <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        tools:layout_editor_absoluteY="472dp"
+                        tools:layout_editor_absoluteX="110dp"
+                        android:id="@+id/latencyView"
+                        android:textSize="18sp"
+                        android:fontFamily="monospace"
+                        android:text="Disconnected"/>
+
+                <Button
+                        android:text="Arm +"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        tools:layout_editor_absoluteY="366dp"
+                        tools:layout_editor_absoluteX="38dp"
+                        android:id="@+id/armplus"/>
+
+                <Button
+                        android:text="Arm Select"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        tools:layout_editor_absoluteY="366dp"
+                        tools:layout_editor_absoluteX="244dp"
+                        android:id="@+id/armselect"/>
+
+                <Button
+                        android:text="ARM -"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        tools:layout_editor_absoluteY="366dp"
+                        tools:layout_editor_absoluteX="136dp"
+                        android:id="@+id/armminus"/>
+
             </LinearLayout>
 
         </TableRow>
