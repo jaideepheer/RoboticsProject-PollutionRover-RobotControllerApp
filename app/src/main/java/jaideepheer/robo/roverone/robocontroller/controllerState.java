@@ -22,7 +22,4 @@ public class controllerState {
             staticContext.debugTextView.setText("carMove: " + carMove+"; x:" +x+"; y: "+y+"; angle: "+angle);
         };
     }
-    public static void setState()
-    {
-    }
 }
