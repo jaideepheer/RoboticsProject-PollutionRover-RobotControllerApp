@@ -1,20 +1,5 @@
 package jaideepheer.robo.roverone.robocontroller.BluetoothClasses;
 
-import android.app.AlertDialog;
-import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothSocket;
-import android.content.Intent;
-import android.util.Log;
-import android.widget.ArrayAdapter;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.UUID;
-
-import jaideepheer.robo.roverone.robocontroller.MainActivity;
-
-import static android.support.v4.app.ActivityCompat.startActivityForResult;
 /*
 public class BTAdapterHandler {
     private static final UUID SerialPortServiceUUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"); //Standard SerialPortService ID
@@ -41,7 +26,7 @@ public class BTAdapterHandler {
     {
         Log.d("AdapterHandler", "Please enable bluetooth.");
         Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-        startActivityForResult(MainActivity.mainActivity,enableBtIntent, 0,null);
+        startActivityForResult(ControllerActivity.mainActivity,enableBtIntent, 0,null);
     }
 
     private static void connectToDevice(BluetoothDevice device)
@@ -107,12 +92,12 @@ public class BTAdapterHandler {
 
         // Create selection dialog
 /*
-        final AlertDialog.Builder alertBuilder = new AlertDialog.Builder(MainActivity.mainActivity);
+        final AlertDialog.Builder alertBuilder = new AlertDialog.Builder(ControllerActivity.mainActivity);
         alertBuilder.setTitle("Paired Bluetooth Devices");
         // get paired devices
         ArrayList<BluetoothDevice> pairedDevices = new ArrayList<>(adapter.getBondedDevices());
         // create a list of paired devices
-        ArrayAdapter<String> BTArrayAdapter = new ArrayAdapter<>(MainActivity.mainContext, android.R.layout.simple_list_item_1);
+        ArrayAdapter<String> BTArrayAdapter = new ArrayAdapter<>(ControllerActivity.mainContext, android.R.layout.simple_list_item_1);
         for(BluetoothDevice device : pairedDevices)
             BTArrayAdapter.add(device.getName()+ "\n" + device.getAddress());
         // Set on select listener
