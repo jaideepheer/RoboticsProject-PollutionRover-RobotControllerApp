@@ -7,14 +7,15 @@ import android.bluetooth.BluetoothSocket;
 import android.content.Intent;
 import android.util.Log;
 import android.widget.ArrayAdapter;
-import jaideepheer.robo.roverone.robocontroller.MainActivity;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.UUID;
 
-import static android.support.v4.app.ActivityCompat.startActivityForResult;
+import jaideepheer.robo.roverone.robocontroller.MainActivity;
 
+import static android.support.v4.app.ActivityCompat.startActivityForResult;
+/*
 public class BTAdapterHandler {
     private static final UUID SerialPortServiceUUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"); //Standard SerialPortService ID
     private static BluetoothAdapter adapter;
@@ -105,7 +106,7 @@ public class BTAdapterHandler {
         }
 
         // Create selection dialog
-
+/*
         final AlertDialog.Builder alertBuilder = new AlertDialog.Builder(MainActivity.mainActivity);
         alertBuilder.setTitle("Paired Bluetooth Devices");
         // get paired devices
@@ -131,3 +132,4 @@ public class BTAdapterHandler {
         alertBuilder.show();
     }
 }
+*/
