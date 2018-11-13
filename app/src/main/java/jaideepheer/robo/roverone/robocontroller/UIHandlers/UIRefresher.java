@@ -1,15 +1,26 @@
 package jaideepheer.robo.roverone.robocontroller.UIHandlers;
 
-import android.app.Activity;
+import jaideepheer.robo.roverone.robocontroller.BluetoothClasses.BTSerialHandler;
+import jaideepheer.robo.roverone.robocontroller.ControllerActivity;
 
 public class UIRefresher implements Runnable {
-    public UIRefresher(Activity parentActivity)
+    private ControllerActivity parent;
+    private final Object toNotifyOnUpdate;
+    public UIRefresher(ControllerActivity parentView, Object toNotifyOnUpdate)
     {
+        parent = parentView;
+        this.toNotifyOnUpdate = toNotifyOnUpdate;
     }
     @Override
     public void run() {
-        while(!Thread.interrupted())
+        // Update UI
+        long latency = BTSerialHandler.getReadyMessageLatency();
+        parent.latencyTV.setText("Latency: " + (latency>-1? latency + " ms.":"Disconnected."));
+
+        // Notify that update is done
+        synchronized (toNotifyOnUpdate)
         {
+            toNotifyOnUpdate.notify();
         }
     }
 }

@@ -14,16 +14,18 @@
         android:weightSum="2">
 
         <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Latency" />
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Latency"
+                android:id="@+id/latencyTV"/>
 
         <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Device Name is " />
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Device Name is "
+                android:id="@+id/deviceNameTV"/>
 
     </LinearLayout>
 
@@ -41,7 +43,8 @@
                                                                      custom:JV_buttonColor="#FF6E40"
                                                                      custom:JV_buttonSizeRatio="15%"
                                                                      custom:JV_fixedCenter="false"
-                                                                     android:layout_weight="1"/>
+                                                                     android:layout_weight="1"
+                                                                     android:id="@+id/joystickView"/>
 
         <LinearLayout
                 android:layout_width="match_parent"
@@ -82,18 +85,18 @@
         android:weightSum="2">
 
         <TextView
-            android:id="@+id/temperature"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Temperature" />
+                android:id="@+id/temperatureTV"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Temperature"/>
 
         <TextView
-            android:id="@+id/air"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Air" />
+                android:id="@+id/airTV"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Air"/>
 
     </LinearLayout>
 </LinearLayout>

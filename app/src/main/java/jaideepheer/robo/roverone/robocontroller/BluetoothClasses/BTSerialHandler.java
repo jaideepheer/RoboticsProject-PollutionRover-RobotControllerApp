@@ -15,7 +15,7 @@ public class BTSerialHandler {
 
     // Used for latency calculation.
     private static long prevReadyTimestamp = 0L;
-    private static long readyMessageLatency = 0L;
+    private static long readyMessageLatency = -1L;
 
     // Message sizes, used to parse from stream and strip header and footer.
     private static final int READY_MESSAGE_SIZE = 3;
@@ -24,7 +24,7 @@ public class BTSerialHandler {
      * Returns the current ready message latency in ms.
      * @return the current ready message latency in ms.
      */
-    public long getReadyMessageLatency()
+    public static long getReadyMessageLatency()
     {
         return readyMessageLatency;
     }
@@ -114,6 +114,7 @@ public class BTSerialHandler {
             }
             Log.d("SerialListener", "Disconnected");
             Log.d("SerialListener", "Listener stopped.");
+            readyMessageLatency = -1;
         };
     }
 
