@@ -1,33 +1,146 @@
 package jaideepheer.robo.roverone.robocontroller.BluetoothClasses;
 
 import android.bluetooth.BluetoothSocket;
+import android.util.Log;
 import jaideepheer.robo.roverone.robocontroller.controllerState;
-import jaideepheer.robo.roverone.robocontroller.staticContext;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.concurrent.atomic.AtomicLong;
 
 public class BTSerialHandler {
     private static final byte HEADER = (byte)0xFA, FOOTER = (byte)0xFF;
     private static final int MAX_JUNK_READ = 7;
-    private static boolean listenerRunning = false;
     private static boolean stateMessageScheduled;
-    private static long prevReadyTimestamp = 0L;
 
-    // Message sizes used to parse from stream and strip header and footer.
+    // Used for latency calculation.
+    private static long prevReadyTimestamp = 0L;
+    private static long readyMessageLatency = 0L;
+
+    // Message sizes, used to parse from stream and strip header and footer.
     private static final int READY_MESSAGE_SIZE = 3;
 
-    public static void HandleReadyMessage(OutputStream out, byte[] message) throws IOException
+    /**
+     * Returns the current ready message latency in ms.
+     * @return the current ready message latency in ms.
+     */
+    public long getReadyMessageLatency()
+    {
+        return readyMessageLatency;
+    }
+
+    /**
+     * Returns a {@link Runnable} that listens to the provided {@link BluetoothSocket} and responds to messages according to the BT Protocol.
+     * @param socket is the socket to communicate on.
+     * @return the runnable that handles socket communication.
+     */
+    public static Runnable getListenerRunnable(BluetoothSocket socket)
+    {
+        return ()-> {
+            // schedule first state message
+            stateMessageScheduled = true;
+            Log.d("SerialListener", "Running BT serial listener.");
+            try {
+                InputStream in = socket.getInputStream();
+                OutputStream out = socket.getOutputStream();
+                int bytesRead;
+                boolean insideMessage = false;
+                byte messageType = 0;
+                try {
+                    mainloop:
+                    while (!Thread.currentThread().isInterrupted()) {
+                        // check socket connection
+                        if (!socket.isConnected()) {
+                            // socket disconnected
+                            Log.d("SerialListener", "BT socket disconnected.");
+                            break;
+                        }
+                        // read Input
+                        // reset local var
+                        bytesRead = 0;
+                        // get bytes till head
+                        if (in.available() > 0) {
+                            // input data available
+                            if (!insideMessage) {
+                                // read till HEADER
+                                while ((byte) (in.read()) != HEADER) {
+                                    ++bytesRead;
+                                    if (bytesRead >= MAX_JUNK_READ || in.available() < 1) continue mainloop;
+                                }
+                                messageType = (byte) -1;
+                                insideMessage = true;
+                            } else {
+                                if (messageType == -1) {
+                                    messageType = (byte) in.read();
+                                }
+                                // read message type
+                                switch (messageType) {
+                                    case (byte) 0xA1:  // Ready Message
+                                        // stall if all not received
+                                        if (in.available() < READY_MESSAGE_SIZE - 2) continue mainloop;
+                                        // check if message valid
+                                        byte[] message = parseMessageFromStream(in, READY_MESSAGE_SIZE - 2);
+                                        if (message == null) {
+                                            // message was invalid, continue
+                                            break;
+                                        }
+                                        // header and footer matched, parse message now
+                                        HandleReadyMessage(message);
+                                        break;
+                                    case HEADER:    // HEADER repeated, still inside message
+                                        messageType = (byte) in.read();
+                                        continue mainloop;
+                                    default:
+                                        // invalid message type
+                                        break;
+                                }
+                                // message successfully handled
+                                insideMessage = false;
+                            }
+                        }
+                        // Send messages
+                        if(stateMessageScheduled)
+                        {
+                            sendSystemState(out);
+                        }
+                    }
+                } catch (Exception e) {
+                    Log.d("SerialListener", "Exception in loop.");
+                    Log.d("SerialListener", e.toString());
+                }
+            } catch (IOException e) {
+                Log.d("SerialListener", "Couldn't get I/O streams from BT socket.");
+                Log.d("SerialListener", e.toString());
+            }
+            Log.d("SerialListener", "Disconnected");
+            Log.d("SerialListener", "Listener stopped.");
+        };
+    }
+
+    // ============================================================================================
+    //                         Private Helper Code
+    //=============================================================================================
+
+    /**
+     * Processes the data in the Ready message and schedules further action.
+     * @param message the bytes of the received message excluding header and message type.
+     */
+    private static void HandleReadyMessage(byte[] message)
     {
         // calc. latency
-        staticContext.latencyView.setText((System.currentTimeMillis() - prevReadyTimestamp)+" ms");
+        readyMessageLatency = System.currentTimeMillis() - prevReadyTimestamp;
         prevReadyTimestamp = System.currentTimeMillis();
+        // schedule set state message
         stateMessageScheduled = true;
     }
 
-    public static void sendSystemState(OutputStream out) throws IOException
+    /**
+     * Creates and sends the SetSystemStateState message to the given {@link OutputStream}.
+     * See BT Protocol for more info on SetSystemStateState message.
+     * @param out the {@link OutputStream} to send the message to.
+     * @throws IOException throws exception if writing on the stream fails.
+     */
+    private static void sendSystemState(OutputStream out) throws IOException
     {
         stateMessageScheduled = false;
         byte[] message = new byte[8];
@@ -50,7 +163,7 @@ public class BTSerialHandler {
      * @param messageLength Required message length.
      * @return message bytes or null if invalid message.
      */
-    public static byte[] parseMessageFromStream(InputStream in, int messageLength) throws IOException
+    private static byte[] parseMessageFromStream(InputStream in, int messageLength) throws IOException
     {
         // mark stream position
         in.mark(messageLength+1);
@@ -81,89 +194,5 @@ public class BTSerialHandler {
             return null;
         }
         return bytes;
-    }
-
-    public static Runnable getListenerRunnable(BluetoothSocket socket)
-    {
-        return ()-> {
-            listenerRunning = true;
-            stateMessageScheduled = true;
-            staticContext.debugPrint("Running BT serial listener.");
-            try {
-                InputStream in = socket.getInputStream();
-                OutputStream out = socket.getOutputStream();
-                    int bytesRead;
-                    boolean insideMessage = false;
-                    byte messageType = 0;
-                    try {
-                        mainloop:
-                        while (!Thread.currentThread().isInterrupted()) {
-                            // check socket connection
-                            if (!socket.isConnected()) {
-                                // socket disconnected
-                                staticContext.debugPrint("BT socket disconnected.");
-                                break;
-                            }
-                            // read Input
-                                // reset local var
-                                bytesRead = 0;
-                                // get bytes till head
-                                if (in.available() > 0) {
-                                    // input data available
-                                    if (!insideMessage) {
-                                        // read till HEADER
-                                        while ((byte) (in.read()) != HEADER) {
-                                            ++bytesRead;
-                                            if (bytesRead >= MAX_JUNK_READ || in.available() < 1) continue mainloop;
-                                        }
-                                        messageType = (byte) -1;
-                                        insideMessage = true;
-                                    } else {
-                                        if (messageType == -1) {
-                                            messageType = (byte) in.read();
-                                        }
-                                        // read message type
-                                        switch (messageType) {
-                                            case (byte) 0xA1:  // Ready Message
-                                                // stall if all not received
-                                                if (in.available() < READY_MESSAGE_SIZE - 2) continue mainloop;
-                                                // check if message valid
-                                                byte[] message = parseMessageFromStream(in, READY_MESSAGE_SIZE - 2);
-                                                if (message == null) {
-                                                    // message was invalid, continue
-                                                    break;
-                                                }
-                                                // header and footer matched, parse message now
-                                                HandleReadyMessage(out, message);
-                                                break;
-                                            case HEADER:    // HEADER repeated, still inside message
-                                                messageType = (byte) in.read();
-                                                continue mainloop;
-                                            default:
-                                                // invalid message type
-                                                break;
-                                        }
-                                        // message successfully handled
-                                        insideMessage = false;
-                                    }
-                                }
-                            // Send messages
-                            if(stateMessageScheduled)
-                            {
-                                sendSystemState(out);
-                            }
-                        }
-                    } catch (Exception e) {
-                        staticContext.debugPrint("BTSerialListener: Exception in loop.");
-                        staticContext.debugPrint(e);
-                    }
-            } catch (IOException e) {
-                staticContext.debugPrint("BTSerialListener: Couldn't get I/O streams from BT socket.");
-                staticContext.debugPrint(e);
-            }
-            listenerRunning = false;
-            staticContext.latencyView.setText("Disconnected");
-            staticContext.debugPrint("Listener stopped.");
-        };
     }
 }
