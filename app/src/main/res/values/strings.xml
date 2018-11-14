@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">RoboController</string>
+    <string name="title_activity_choose_device">chooseDevice</string>
 </resources>

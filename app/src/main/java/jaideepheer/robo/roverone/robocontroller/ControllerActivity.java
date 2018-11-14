@@ -32,9 +32,10 @@ public class ControllerActivity extends AppCompatActivity {
 
     private void setUIUpdaters()
     {
+        // set joystick onMove listener
         joystickView.setOnMoveListener(controllerState.getJoystickUpdater());   // set joystick to update controllerState on movement
 
-        // start latency refresh task loop
+        // start latency view refresh loop
         new Thread(()->{
             Log.d("UIRefresher Thread","Started.");
             Thread curt = Thread.currentThread();
