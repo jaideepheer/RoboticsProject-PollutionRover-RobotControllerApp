@@ -1,5 +1,6 @@
 package jaideepheer.robo.roverone.robocontroller;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -8,6 +9,10 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.github.controlwear.virtual.joystick.android.JoystickView;
 import jaideepheer.robo.roverone.robocontroller.UIHandlers.UIRefresher;
+
+import static jaideepheer.robo.roverone.robocontroller.staticGlobalVars.btAdapter;
+import static jaideepheer.robo.roverone.robocontroller.staticGlobalVars.btSocket;
+import static jaideepheer.robo.roverone.robocontroller.staticGlobalVars.btDevice;
 
 public class ControllerActivity extends AppCompatActivity {
 
@@ -21,6 +26,16 @@ public class ControllerActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // Check vars
+        if(btAdapter==null || btDevice==null || btSocket==null
+                || !btAdapter.isEnabled()
+                || !btSocket.isConnected())
+        {
+            Log.d("OnCreate", "kuch toh gadbad hai.");
+            Intent myIntent = new Intent(this, chooseDevice.class);
+            startActivity(myIntent);
+            finish();
+        }
         setContentView(R.layout.activity_main2);
         ButterKnife.bind(this); // process ButterKnife annotations
         setUIUpdaters(); // set UI listeners
